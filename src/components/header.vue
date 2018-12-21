@@ -1,5 +1,5 @@
 <template>
-  <div class="header" >
+  <div class="header" :class="{blur:pop}">
       <div class="content-wrapper">
           <div class="avatar">
             <img width="64" height="64" :src="seller.avatar" alt="" >
@@ -17,7 +17,7 @@
 
           </div>
           <div class="count" v-if="seller.supports" @click="pop=!pop">
-            {{seller.supports.length}}个  >
+            {{seller.supports.length}}个 >  
           </div>
       </div>
       <div class="bulletin">
@@ -29,18 +29,30 @@
       <!-- 弹出层blur背景 -->
       <div v-show="pop" class="pop-blur"></div>
       <!-- 上层内容 -->
-      <div v-show="pop" class="pop-wrapper">
-          <h3 class="p-title">{{seller.name}}</h3>
-          <v-star :score="seller.score"></v-star>
-          <div class="special-offer">
-            <h3>优惠信息</h3>
-            <p class="decrease"></p>
-            <p class="discount"></p>
-            <p class="discount"></p>
-            <p class="special"></p>
-            <p class="special"></p>
-          </div> 
-          <div class="seller-bulletin"></div> 
+      <div v-show="pop" class="pop-wrapper" >
+        <div class="stick-wrappper" :style="stick">
+          <div class="main" :style="main">
+            <h3 class="p-title">{{seller.name}}</h3>
+            <v-star :score="seller.score"></v-star>
+            <div class="special-offer">
+              <h3>优惠信息</h3>
+              <p><span class="icon" v-if="seller.supports" :class="support[seller.supports[0].type]"></span>  <span class="text" v-if="seller.supports">{{seller.supports[0].description}},满50减10</span>  </p>
+              <p><span class="icon"  v-if="seller.supports" :class="support[seller.supports[1].type]"></span> <span class="text">单人精彩套餐</span>   </p>
+              <p><span class="icon"  v-if="seller.supports" :class="support[seller.supports[1].type]"></span> <span class="text">清肺雪梨汤8折抢购</span>   </p>
+              <p><span class="icon" v-if="seller.supports" :class="support[seller.supports[2].type]"></span>  <span class="text">特价饮瓶8折抢购</span>  </p>
+              <p><span class="icon" v-if="seller.supports" :class="support[seller.supports[2].type]"></span>  <span class="text">单人特色套餐</span>  </p>
+            </div> 
+            <div class="seller-bulletin">
+              <h3>商家公告</h3>
+              <div class="infos">
+                <p>{{seller.bulletin}}</p>
+              </div>
+            </div>
+          </div>  
+        </div>  
+        <div class="close" @click="pop=!pop">
+            <i class="iconfont icon-close1"></i>
+        </div> 
       </div>
 
      
@@ -53,7 +65,15 @@ import star from "./star/star.vue"
 export default {
   data() {
    return {
-     pop:false
+     pop:false ,
+     stick:{
+       "min-height":'100%',
+       'position':'relative'
+     },
+     main:{
+       'overflow':'hidden',
+       "margin-bottom":'-64px'
+     }
    }
 
   },
@@ -75,7 +95,7 @@ export default {
 
 <style lang="stylus" scoped rel="stylesheet/stylus">
   @import "../common/stylus/mixin.styl"
-
+    
   .header
     color:#fff
     position relative
@@ -195,11 +215,13 @@ export default {
       // filter blur(10px)
     } 
     .pop-wrapper{
-      position absolute
+      overflow auto
+      position fixed
+      box-sizing border-box
       left 0
       top 0
       width 100%
-      height 100vh
+      height  100%
       z-index 999
       font-size 12px
       color rgb(255,255,255)
@@ -216,7 +238,64 @@ export default {
         margin-bottom 28px
       }
       .special-offer{
-        margin 0 36px 28px 36px
+        margin 0 36px 16px 36px
+        position relative
+        &:after,&:before{
+          display: block
+          position: absolute
+          top :7px
+          width :112px
+          height 1px
+          background-color  rgba(255,255,255,.2)
+          content: ""
+        }
+        &:after{
+          right 0
+        }
+        &:before{
+          left 0
+        }
+        h3{
+          text-align center
+          font-size 14px
+          margin-bottom 24px
+          font-weight 700
+        }
+        p{
+          height 16px
+          margin-bottom 12px
+          font-weight 200
+          .icon{
+            display inline-block
+            margin-left 10px
+            margin-right 6px
+            width 16px
+            height 16px
+            background-size 16px 16px
+            &.decrease{
+              bg-image('../../resource/img/decrease_2') 
+              } 
+            &.discount{
+              bg-image('../../resource/img/discount_2')
+              }
+            &.special{
+               bg-image('../../resource/img/special_2')
+              }
+            &.invoice{
+               bg-image('../../resource/img/invoice_2')
+              }
+            &.guarantee{
+               bg-image('../../resource/img/guarantee_2')
+              }    
+          }
+          .text{
+              vertical-align top
+              font-weight 200
+          }  
+        }
+      }
+      .seller-bulletin{
+        margin 0 36px 0 36px
         position relative
         &:after,&:before{
            display: block
@@ -225,30 +304,39 @@ export default {
            width :112px
            height 1px
            background-color  rgba(255,255,255,.2)
-           content: ""
-           border-top: 1px solid $color 
+           content: "" 
         }
         &:after{
           right 0
-          }
+        }
         &:before{
           left 0
-          }
+        }
         h3{
           text-align center
           font-size 14px
           margin-bottom 24px
-
+          font-weight 700
+        }
+        .infos{
+          padding 0 12px
+          padding-bottom 64px
+          p{
+            line-height 24px
+            font-weight 200
+          }
         }
       }
+      .close{
+        width 100%
+        height 64px
+        text-align center
+        .icon-close1{
+        }
+        .icon-close1:before{
+          font-size 32px
+          color rgba(255,255,255,.5)
+        }
+      } 
     }   
-
-        
-
-
-
-
 </style>
-
-
-
