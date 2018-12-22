@@ -1,6 +1,6 @@
 # my-first-vue-project
 
-> my first vue project
+> vue饿了么小项目---大部分人都做过了吧!
 
 ## Build Setup
 
