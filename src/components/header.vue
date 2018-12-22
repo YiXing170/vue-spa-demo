@@ -68,11 +68,11 @@ export default {
      pop:false ,
      stick:{
        "min-height":'100%',
-       'position':'relative'
+       "margin-bottom":'-64px'
      },
      main:{
        'overflow':'hidden',
-       "margin-bottom":'-64px'
+       
      }
    }
 
@@ -324,6 +324,7 @@ export default {
           p{
             line-height 24px
             font-weight 200
+            text-align justify
           }
         }
       }
