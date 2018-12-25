@@ -20,7 +20,11 @@
         }
       }
     },
+    methods:{
+    },
     created() {
+      this.classMap = ['decrease', 'discount', 'special', 'invoice', 'guarantee'];
+
       this.$http.get('/api/seller').then((res) => {
          res=res.data
          if(res.errno===0){
