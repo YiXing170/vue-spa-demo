@@ -2,10 +2,9 @@
   <div class="goods">
     <div class="menu-wrapper" ref="menuWrapper">
       <ul>
-        <li class="menu-item" v-for="(item,index) in goods" :key="index" ref="menuList">
+        <li class="menu-item" v-for="(item,index) in goods" :key="index" ref="menuList" :class="{'current':index===currentIndex}" @click="selectMenu(index)"> 
           <p class="text">
-            <span class="icon" v-if="item.type>=0" :class="classMap[item.type]" ></span>
-            {{item.name}}
+            <span class="icon" v-if="item.type>=0" :class="classMap[item.type]" ></span>{{item.name}}
           </p>
         </li>
       </ul>
@@ -20,10 +19,10 @@
                   <img width="57" height="57" :src="item.icon">
               </div>
               <div class="content">
-                <p>{{item.name}}</p>
-                <p>{{item.description}}</p>
-                <p>月售{{item.sellCount}}  好评率{{item.rating}}%</p>
-                <p><span>￥{{item.price}}</span><span v-if="item.oldPrice">￥{{item.oldPrice}}</span></p>
+                <p class="name">{{item.name}}</p>
+                <p class="description" v-if="item.description">{{item.description}}</p>
+                <p class="sell">月售{{item.sellCount}}  好评率{{item.rating}}%</p>
+                <p ><span class="price">￥{{item.price}}</span><span v-if="item.oldPrice" class="oldprice">￥{{item.oldPrice}}</span></p>
                 <div class="cartcontrol-wrapper">
 
                 </div> 
@@ -43,7 +42,9 @@ import BScroll from 'better-scroll'
 export default {
   data(){
     return {
-      goods:{}
+      goods:{} ,
+      currentIndex:0,
+      
     }
   },
   methods:{
@@ -53,6 +54,9 @@ export default {
           click: true,
           disableMouse:false
         });
+    },
+    selectMenu(i){
+      this.currentIndex=i
     }
   },
   computed:{},
@@ -94,6 +98,9 @@ export default {
         font-size 12px
         color rgb(20,20,20)
         line-height 14px
+        &.current{
+          background-color #fff
+        }
         .text{
           display inline-block
           vertical-align middle
@@ -101,10 +108,10 @@ export default {
           text-align center
           .icon{
             display inline-block
-            vertical-align middle
-            width 12px
-            height 12px
-            background-size 12px 12px
+            vertical-align text-top
+            width 14px
+            height 14px
+            background-size 14px 14px
             &.decrease{
               bg-image('../../resource/img/decrease_1') 
             } 
@@ -144,6 +151,32 @@ export default {
           }
           .content{
             flex 1
+            padding 2px 0 0 10px
+            font-size 10px
+            color rgb(147,153,159) 
+            .name{
+              font-size 14px
+              color rgb(7,17,27)
+              line-height 14px
+              margin-bottom 8px
+              font-weight 500
+            }
+            .description{
+              margin-bottom 8px
+            }
+            .sell{
+               margin-bottom 8px
+            }
+            .price{
+              font-size 14px
+              color #f01414
+              font-weight 700
+              line-height 24px
+              margin-right 8px
+            }
+            .oldprice{
+              text-decoration line-through
+            }
           }
         }
 
