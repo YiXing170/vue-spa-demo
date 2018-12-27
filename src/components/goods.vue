@@ -9,12 +9,12 @@
         </li>
       </ul>
     </div>
-    <div class="food-wrapper" ref="foodWrapper">
+    <div class="food-wrapper" ref="foodsWrapper">
       <ul>
         <li class="food-item" v-for="(item,index) in goods" :key="index" ref="foodList">
           <h1>{{item.name}}</h1>
           <ul>
-            <li class="food-detail" v-for="(item,index) in item.foods" :key="index">
+            <li class="food-detail" v-for="(item,index) in item.foods" :key="index" @click="selectFood(item)">
               <div class="icon">
                   <img width="57" height="57" :src="item.icon">
               </div>
@@ -43,31 +43,84 @@ export default {
   data(){
     return {
       goods:{} ,
-      currentIndex:0,
-      
+      listHeight:[],
+      scrollY:0,
+      selectedFood:null
     }
   },
   methods:{
-    initScroll(e){
-      this.meunScroll = new BScroll(e, {
-          scrollY: true,
-          click: true,
-          disableMouse:false
-        });
+    _initScroll() {
+      this.meunScroll = new BScroll(this.$refs.menuWrapper, {
+        click: true
+      });
+      this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
+        click: true,
+        probeType: 3
+      })
+      this.foodsScroll.on('scroll', (pos) => {
+          // 判断滑动方向，避免下拉时分类高亮错误（如第一分类商品数量为1时，下拉使得第二分类高亮）
+          if (pos.y <= 0) {
+            this.scrollY = Math.abs(Math.round(pos.y));
+          }
+      })
     },
-    selectMenu(i){
-      this.currentIndex=i
+    selectMenu(index){
+      let foodList = this.$refs.foodList;
+      let el = foodList[index];
+      this.foodsScroll.scrollToElement(el, 300);
+    },
+    selectFood(food){
+      this.selectedFood=food
+      this.$refs.food.show();
+    },
+    _calculateHeight(){
+      let foodList = this.$refs.foodList;
+      let height = 0;
+      this.listHeight.push(height);
+      for (let i = 0; i < foodList.length; i++) {
+        let item = foodList[i];
+        height += item.clientHeight;
+        this.listHeight.push(height);
+      }
+    },
+    _followScroll(index) {
+      let menuList = this.$refs.menuList;
+      let el = menuList[index];
+      this.meunScroll.scrollToElement(el, 300, 0, -100);
     }
   },
-  computed:{},
+  computed:{
+    currentIndex() {
+        for (let i = 0; i < this.listHeight.length; i++) {
+          let height1 = this.listHeight[i];
+          let height2 = this.listHeight[i + 1];
+          if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
+            this._followScroll(i);
+            return i;
+          }
+        }
+        return 0;
+    },
+    selectFoods() {
+        let foods = [];
+        this.goods.forEach((good) => {
+          good.foods.forEach((food) => {
+            if (food.count) {
+              foods.push(food);
+            }
+          });
+        });
+        return foods;
+    }
+  },
   created(){
     this.classMap = ['decrease', 'discount', 'special', 'invoice', 'guarantee'];
     this.$http.get('/api/goods').then(res=>{
       if(res.data.errno===0){
         this.goods=res.body.data
         this.$nextTick(() => {
-            this.initScroll(this.$refs.menuWrapper);
-            this.initScroll(this.$refs.foodWrapper)
+            this._initScroll();
+            this._calculateHeight();
             
         });
       }
@@ -76,7 +129,7 @@ export default {
 };
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
   .goods{
     display flex
     position absolute 
@@ -100,6 +153,7 @@ export default {
         line-height 14px
         &.current{
           background-color #fff
+          color #3299CC
         }
         .text{
           display inline-block
